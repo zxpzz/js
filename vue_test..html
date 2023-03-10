@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <span>{{count}}</span>
+    </div>
+
+    <script>
+
+        const update=(doc,data)=>{
+            const tem=doc.innerHTML
+            const regex=/\{\{([^}]+)\}\}/g
+            const res=tem.replace(regex,(_,key)=>data[key])
+            console.log(res);
+            doc.innerHTML=res
+
+        }
+
+
+        const halder={
+            get(ter,key){
+                console.log("访问");
+                return Reflect.get(ter,key)
+            },
+            set(ter,key,val){
+                console.log('更改');
+                const oldVal=Reflect.get(ter,key)
+                const newVal= Reflect.set(ter,key,val)
+        
+                if(oldVal!==val){
+                    console.log('不等');
+                    let doc=document.querySelector('#app')
+                    console.log(ter[key]);
+                    // doc.innerHTML=`<span>${ter[key]}</span>`
+                    // doc.innerText=ter[key]
+                    update(doc,ter)
+                }
+                return newVal
+            }
+        }
+
+        const reactive=(obj)=>{
+            return new Proxy(obj,halder)
+
+        }
+
+        const state=reactive({
+            count:0
+        })
+        console.log(state.count);
+        state.count=6
+        console.log(state.count);
+    </script>
+    
+</body>
+</html>
